@@ -1,11 +1,9 @@
-﻿using UnityEngine.SceneManagement;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine.UI;
 using UnityEngine;
 using System.Linq;
 using System;
-using UnityObject = UnityEngine.Object;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class ConsoleMethod : Attribute {
@@ -39,15 +37,9 @@ public class ConsoleLogic : MonoBehaviour {
 
     private bool show = false;
     private Animator animator;
-
+        
    void Awake() {
         animator = GetComponent<Animator>();
-
-        var executableTypes = FindExecutableTypes();
-        foreach(Type t in executableTypes) {
-            Debug.Log(t.ToString());
-            Debug.Log(UnityObject.FindObjectOfType(t).name);
-        }
    }
 
     // Use this for initialization
@@ -153,17 +145,16 @@ public class ConsoleLogic : MonoBehaviour {
 #region Reflection
 
     private IEnumerable<Type> FindExecutableTypes() {
-        var executableTypes = Assembly.GetAssembly(typeof(ConsoleLogic)).GetTypes().Where(_ => _.IsDefined(typeof(ExecutableFromConsole), false));
+        var localAssembly = Assembly.GetAssembly(typeof(ConsoleLogic));
+        var executableTypes = localAssembly.GetTypes().Where(_ => _.IsDefined(typeof(ExecutableFromConsole), false)).ToList();
         return executableTypes;
     }
 
-    /*private IEnumerable<Component> FindDistinctExecutableComponents()
+    private bool TryFindExecutableInstanceOfType(Type type, out object instance)
     {
-        var executableTypes = FindExecutableTypes();
-        executableTypes.Select(t => FindObjectOfType(t))
-            .Cast<GameObject>()            
-            
-    }*/
+        instance = FindObjectOfType(type);
+        return instance != null;
+    }
 
     private void FindCmdMethod(string command, out MethodInfo minfo, out ConsoleMethod cmethod) {
         MethodInfo[] methods = CommandMethods;
@@ -199,13 +190,22 @@ public class ConsoleLogic : MonoBehaviour {
             if(methodParams.Length == parameters.Length - 1) {
                 for(int i = 0; i < methodParams.Length; i++) {
                     try {
-                        object converted = System.Convert.ChangeType(parameters[i+1], methodParams[i].ParameterType);
+                        object converted = Convert.ChangeType(parameters[i+1], methodParams[i].ParameterType);
                         parameterValues.Add(converted);
                     } catch {
                         WriteError("Parameter conversion error.");
                     }
                 }
-                targetMethod.Invoke(this, parameterValues.ToArray());
+
+                object target;
+                if(TryFindExecutableInstanceOfType(targetMethod.DeclaringType, out target))
+                {
+                    targetMethod.Invoke(target, parameterValues.ToArray());
+                }
+                else
+                {
+                    WriteError("No executable instance found in the scene.");
+                }
             } else {
                 WriteError((parameters.Length-1).ToString() + " parameters given but " + methodParams.Length + " expected.");
             }
@@ -223,8 +223,9 @@ public class ConsoleLogic : MonoBehaviour {
         get {
             List<MethodInfo> methodInfos = new List<MethodInfo>();
             var types = FindExecutableTypes();
+            types = types.Where(t => FindObjectOfType(t) != null).ToList();
 
-            var methods = types.SelectMany(t => t.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));           
+            var methods = types.SelectMany(t => t.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)).ToList();           
             MethodInfo[] filtered = methods.Where(m => m.GetCustomAttributes(typeof(ConsoleMethod), false).Length > 0).ToArray();
             return filtered;
         }

@@ -18,6 +18,6 @@ public class GameControllerCommands : MonoBehaviour {
     [ConsoleMethod("do_something", "Does something")]
     public void DoSomething()
     {
-        Application.Quit();
+        Debug.Log("yay");
     }
 }
