@@ -6,7 +6,7 @@
         /// The current input text.
         /// Readonly.
         /// </summary>
-        string Input { get; }        
+        string Input { get; set; }
 
         /// <summary>
         /// Returns the visible state of the console.
@@ -38,6 +38,6 @@
         /// Adds the given text to the output window.
         /// Use ConsoleIO instead if you want to write to the console.
         /// </summary>        
-        void AppendToOutput(string text);                
+        void AppendToOutput(string text);
     }
 }

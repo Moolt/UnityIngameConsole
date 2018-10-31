@@ -12,10 +12,13 @@ namespace IngameConsole
     {
         [SerializeField]
         private KeyCode consoleToggleKey = KeyCode.Tab;
+
         private IConsoleUI _consoleUI;
+        private ConsoleHistory _history;
 
         void Awake()
         {
+            _history = new ConsoleHistory(maxCapacity: 10);
             _consoleUI = GetComponent(typeof(IConsoleUI)) as IConsoleUI;
             ConsoleIO.InitializeIO(_consoleUI);
         }
@@ -33,31 +36,59 @@ namespace IngameConsole
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                ConsoleIO.WriteLineItalic("> " + _consoleUI.Input);
-
-                try
-                {
-                    ExecuteLine(_consoleUI.Input);
-                }
-                catch (Exception e)
-                {
-                    if (e.Message != string.Empty)
-                    {
-                        ConsoleIO.WriteError(e.Message);
-                    }
-                }
-                finally
-                {
-                    _consoleUI.ClearInput();
-                    _consoleUI.SelectInput();
-                }
-            }
-
             if (Input.GetKeyDown(consoleToggleKey))
             {
                 _consoleUI.ToggleVisibility();
+            }
+
+            if (_consoleUI.IsVisible)
+            {
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    ConsoleIO.WriteLineItalic("> " + _consoleUI.Input);
+
+                    try
+                    {
+                        ExecuteLine(_consoleUI.Input);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e.Message != string.Empty)
+                        {
+                            ConsoleIO.WriteError(e.Message);
+                        }
+                    }
+                    finally
+                    {
+                        _consoleUI.ClearInput();
+                        _consoleUI.SelectInput();
+                    }
+                }
+
+                HandleHistory();
+            }
+        }
+
+        private void HandleHistory()
+        {
+            var historyRequested = false;
+            var command = string.Empty;
+
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                command = _history.ShiftBack();
+                historyRequested = true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                command = _history.ShiftForward();
+                historyRequested = true;
+            }
+
+            if (historyRequested && command != string.Empty)
+            {
+                _consoleUI.Input = command;
             }
         }
 
@@ -131,6 +162,7 @@ namespace IngameConsole
                     if (TryFindExecutableInstanceOfType(targetMethod.DeclaringType, out target))
                     {
                         targetMethod.Invoke(target, parameterValues.ToArray());
+                        _history.WriteToHistory(line);
                     }
                     else
                     {
@@ -182,13 +214,13 @@ namespace IngameConsole
         private string GetCommandName(MethodInfo minfo)
         {
             ConsoleMethod attribute = GetAttribute(minfo);
-            return attribute != null ? attribute.Command : "";
+            return attribute != null ? attribute.Command : string.Empty;
         }
 
         private string GetCommandDescr(MethodInfo minfo)
         {
             ConsoleMethod attribute = GetAttribute(minfo);
-            return attribute != null ? attribute.Description : "";
+            return attribute != null ? attribute.Description : string.Empty;
         }
 
         private string GetUsageInformation(string cmdName, MethodInfo minfo)

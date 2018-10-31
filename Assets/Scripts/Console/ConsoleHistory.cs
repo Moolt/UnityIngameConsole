@@ -22,10 +22,12 @@ namespace IngameConsole
         {
             _history.Add(command);
 
-            if(_history.Count > _maxCapacity)
+            if (_history.Count > _maxCapacity)
             {
                 _history.RemoveAt(0);
             }
+
+            ResetOffset();
         }
 
         public string ShiftBack()
@@ -48,7 +50,7 @@ namespace IngameConsole
             return command;
         }
 
-        public void Reset()
+        public void ResetOffset()
         {
             _offset = 0;
         }
@@ -60,7 +62,18 @@ namespace IngameConsole
 
         private string CurrentCommand
         {
-            get { return _history[CurrentIndex]; }
+            get
+            {
+                var command = string.Empty;
+
+                try
+                {
+                    command = _history[CurrentIndex];
+                }
+                catch { }
+
+                return command;
+            }
         }
 
         private int CurrentIndex
@@ -70,12 +83,12 @@ namespace IngameConsole
 
         private void CheckOffset()
         {
-            if(_offset > _history.Count - 1)
+            if (_offset > _history.Count - 1)
             {
                 _offset = 0;
             }
 
-            if(_offset < 0)
+            if (_offset < 0)
             {
                 _offset = _history.Count - 1;
             }

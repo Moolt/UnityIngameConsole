@@ -1,18 +1,20 @@
 ﻿using UnityEngine;
 
-public class CameraShiftEffect : MonoBehaviour {
-
+public class CameraShiftEffect : MonoBehaviour
+{
     public float _offset = 5f;
 
     private Camera _camera;
     private Vector3 _defaultRotation;
 
-	void Start () {
+    void Start()
+    {
         _camera = GetComponent<Camera>();
         _defaultRotation = _camera.transform.rotation.eulerAngles;
-	}
+    }
 
-	void Update () {
+    void Update()
+    {
         Vector2 screen = new Vector2(Screen.width, Screen.height);
         Vector2 mousePos = Input.mousePosition;
 
@@ -25,5 +27,5 @@ public class CameraShiftEffect : MonoBehaviour {
 
         var rotation = _camera.transform.rotation;
         _camera.transform.rotation = Quaternion.Euler(_defaultRotation + _cameraOffset);
-	}
+    }
 }

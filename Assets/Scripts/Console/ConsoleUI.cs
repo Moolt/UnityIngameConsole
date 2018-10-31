@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace IngameConsole
@@ -22,6 +23,7 @@ namespace IngameConsole
         public string Input
         {
             get { return input.text; }
+            set { input.text = value; input.caretPosition = input.text.Length; }
         }
 
         public bool IsVisible
@@ -42,12 +44,12 @@ namespace IngameConsole
 
         public void ClearInput()
         {
-            input.text = "";
+            input.text = string.Empty;
         }
 
         public void ClearOutput()
         {
-            outputText.text = "";
+            outputText.text = string.Empty;
         }
 
         public void SelectInput()
@@ -70,6 +72,6 @@ namespace IngameConsole
                 ClearInput();
                 SelectInput();
             }
-        }    
+        }
     }
 }
