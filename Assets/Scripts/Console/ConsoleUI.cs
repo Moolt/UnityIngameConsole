@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace IngameConsole
 {
-    public class ConsoleUI : MonoBehaviour
+    public class ConsoleUI : MonoBehaviour, IConsoleUI
     {
         [SerializeField]
         private InputField input;
@@ -55,7 +55,7 @@ namespace IngameConsole
             input.ActivateInputField();
         }
 
-        public void Write(string text)
+        public void AppendToOutput(string text)
         {
             outputText.text += text;
         }

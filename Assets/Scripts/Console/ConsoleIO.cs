@@ -4,10 +4,9 @@ namespace IngameConsole
 {
     public static class ConsoleIO
     {
+        private static IConsoleUI _consoleUI;
 
-        private static ConsoleUI _consoleUI;
-
-        public static void InitializeIO(ConsoleUI consoleUI)
+        public static void InitializeIO(IConsoleUI consoleUI)
         {
             _consoleUI = consoleUI;
         }
@@ -19,7 +18,7 @@ namespace IngameConsole
 
         public static void Write(string text)
         {
-            _consoleUI.Write(text);
+            _consoleUI.AppendToOutput(text);
         }
 
         public static void WriteLineItalic(string text)

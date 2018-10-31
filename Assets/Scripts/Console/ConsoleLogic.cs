@@ -4,22 +4,16 @@ using UnityEngine;
 using System.Linq;
 using System;
 
-[AttributeUsage(AttributeTargets.Class)]
-public class ExecutableFromConsole : Attribute
-{
-}
-
 namespace IngameConsole
 {
     [ExecutableFromConsole]
     public class ConsoleLogic : MonoBehaviour
     {
-
-        private ConsoleUI _consoleUI;
+        private IConsoleUI _consoleUI;
 
         void Awake()
         {
-            _consoleUI = GetComponent<ConsoleUI>();
+            _consoleUI = GetComponent(typeof(IConsoleUI)) as IConsoleUI;
             ConsoleIO.InitializeIO(_consoleUI);
         }
 
