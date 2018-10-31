@@ -4,7 +4,6 @@ using IngameConsole;
 [ExecutableFromConsole]
 public class GameControllerCommands : MonoBehaviour
 {
-
     public GameObject cube;
 
     [ConsoleMethod("cube_rotate", "Rotates the cube by to the given angle.")]
