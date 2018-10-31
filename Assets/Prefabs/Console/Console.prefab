@@ -333,6 +333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbb6f88eed0554c4baaca8a704f818d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  consoleToggleKey: 9
 --- !u!114 &114470518741599660
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -755,8 +756,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 809.5, y: -278.94}
-  m_SizeDelta: {x: 1609, y: 25}
+  m_AnchoredPosition: {x: 826, y: -278.94}
+  m_SizeDelta: {x: 1642, y: 25}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!224 &224632169732211516
 RectTransform:
@@ -851,7 +852,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 5, y: -129.47}
-  m_SizeDelta: {x: 1609, y: 248.94}
+  m_SizeDelta: {x: 1642, y: 248.94}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!225 &225365798623430200
 CanvasGroup:

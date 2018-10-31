@@ -10,6 +10,8 @@ namespace IngameConsole
     [RequireComponent(typeof(ConsoleUI))]
     public class ConsoleLogic : MonoBehaviour
     {
+        [SerializeField]
+        private KeyCode consoleToggleKey = KeyCode.Tab;
         private IConsoleUI _consoleUI;
 
         void Awake()
@@ -34,12 +36,26 @@ namespace IngameConsole
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 ConsoleIO.WriteLineItalic("> " + _consoleUI.Input);
-                ExecuteLine(_consoleUI.Input);
-                _consoleUI.ClearInput();
-                _consoleUI.SelectInput();
+
+                try
+                {
+                    ExecuteLine(_consoleUI.Input);
+                }
+                catch (Exception e)
+                {
+                    if (e.Message != string.Empty)
+                    {
+                        ConsoleIO.WriteError(e.Message);
+                    }
+                }
+                finally
+                {
+                    _consoleUI.ClearInput();
+                    _consoleUI.SelectInput();
+                }
             }
 
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (Input.GetKeyDown(consoleToggleKey))
             {
                 _consoleUI.ToggleVisibility();
             }
@@ -83,7 +99,6 @@ namespace IngameConsole
 
         public void ExecuteLine(string line)
         {
-
             string[] parameters = line.Split(' ');
             string command = parameters[0];
 
@@ -108,7 +123,7 @@ namespace IngameConsole
                         }
                         catch
                         {
-                            ConsoleIO.WriteError("Parameter conversion error.");
+                            throw new Exception("Parameter conversion error.");
                         }
                     }
 
@@ -119,19 +134,20 @@ namespace IngameConsole
                     }
                     else
                     {
-                        ConsoleIO.WriteError("No executable instance found in the scene.");
+                        throw new Exception("No executable instance found in the scene.");
                     }
+                    return;
                 }
                 else
                 {
                     ConsoleIO.WriteError((parameters.Length - 1).ToString() + " parameters given but " + methodParams.Length + " expected.");
                     ConsoleIO.WriteError("Usage: " + GetUsageInformation(command, targetMethod));
+                    throw new Exception(string.Empty);
                 }
-
             }
             else
             {
-                ConsoleIO.WriteError("Command <b>" + command + "</b> not found.");
+                throw new Exception("Command <b>" + command + "</b> not found.");
             }
         }
 
