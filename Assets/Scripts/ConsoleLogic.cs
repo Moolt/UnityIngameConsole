@@ -7,12 +7,15 @@ using System;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class ConsoleMethod : Attribute {
-    private string command;
-    private string descr;
+    private readonly string command;
+    private readonly string descr;
 
     public ConsoleMethod(string command, string descr) {
         this.command = command;
         this.descr = descr;
+    }
+
+    public ConsoleMethod(string command) : this(command, "No description available.") {
     }
 
     public string Command {
@@ -25,8 +28,20 @@ public class ConsoleMethod : Attribute {
 }
 
 [AttributeUsage(AttributeTargets.Class)]
-public class ExecutableFromConsole : Attribute
-{
+public class ExecutableFromConsole : Attribute {
+}
+
+[AttributeUsage(AttributeTargets.Parameter)]
+public class ConsoleParameter : Attribute {
+    private readonly string descr;
+
+    public ConsoleParameter(string descr) {
+        this.descr = descr;
+    }
+
+    public string Description {
+        get { return descr; }
+    }
 }
 
 [ExecutableFromConsole]
@@ -208,6 +223,7 @@ public class ConsoleLogic : MonoBehaviour {
                 }
             } else {
                 WriteError((parameters.Length-1).ToString() + " parameters given but " + methodParams.Length + " expected.");
+                WriteError("Usage: " + GetUsageInformation(command, targetMethod));
             }
 
         } else {
@@ -221,7 +237,6 @@ public class ConsoleLogic : MonoBehaviour {
 
     private MethodInfo[] CommandMethods {
         get {
-            List<MethodInfo> methodInfos = new List<MethodInfo>();
             var types = FindExecutableTypes();
             types = types.Where(t => FindObjectOfType(t) != null).ToList();
 
@@ -249,9 +264,28 @@ public class ConsoleLogic : MonoBehaviour {
         return attribute != null ? attribute.Description : "";
     }
 
+    private string GetUsageInformation(string cmdName, MethodInfo minfo) {
+        var description = string.Format("<b>{0}</b>", cmdName); ;
+        Action<string> AddParameterDescr = (string line) => { description += " " + line; };
+        var parameters = minfo.GetParameters();
+        
+        foreach(ParameterInfo pinfo in parameters) {
+            var parameterAttribute = pinfo.GetCustomAttributes(typeof(ConsoleParameter), false).FirstOrDefault() as ConsoleParameter;
+
+            if (parameterAttribute != null) {
+                AddParameterDescr(string.Format("[{0}]", parameterAttribute.Description));
+            }
+            else {
+                AddParameterDescr(string.Format("[{0}]", pinfo.Name));
+            }
+        }
+
+        return description;
+    }
+
     #endregion
 
-#region Commands
+    #region Commands
 
     [ConsoleMethod("help", "Prints all available commands.")]
     private void HelpCmd() {
@@ -268,6 +302,7 @@ public class ConsoleLogic : MonoBehaviour {
         MethodInfo minfo = MethodByCmdName(cmdName);
         if(minfo != null) {
             WriteLine(GetCommandDescr(minfo));
+            WriteLine("Usage: " + GetUsageInformation(cmdName, minfo));
         } else {
             WriteError("Invalid command <b>" + cmdName + "</b>.");
         }
