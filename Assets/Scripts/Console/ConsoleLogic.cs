@@ -7,6 +7,7 @@ using System;
 namespace IngameConsole
 {
     [ExecutableFromConsole]
+    [RequireComponent(typeof(ConsoleUI))]
     public class ConsoleLogic : MonoBehaviour
     {
         private IConsoleUI _consoleUI;

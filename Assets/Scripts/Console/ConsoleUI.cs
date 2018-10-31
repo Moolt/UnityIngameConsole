@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 namespace IngameConsole
 {
+    [RequireComponent(typeof(Animator))]
     public class ConsoleUI : MonoBehaviour, IConsoleUI
     {
         [SerializeField]
