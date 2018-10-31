@@ -20,11 +20,14 @@ namespace IngameConsole
 
         public void WriteToHistory(string command)
         {
-            _history.Add(command);
-
-            if (_history.Count > _maxCapacity)
+            if(CommandAt(_history.Count - 1) != command)
             {
-                _history.RemoveAt(0);
+                _history.Add(command);
+
+                if (_history.Count > _maxCapacity)
+                {
+                    _history.RemoveAt(0);
+                }            
             }
 
             ResetOffset();
@@ -64,16 +67,21 @@ namespace IngameConsole
         {
             get
             {
-                var command = string.Empty;
-
-                try
-                {
-                    command = _history[CurrentIndex];
-                }
-                catch { }
-
-                return command;
+                return CommandAt(CurrentIndex);
             }
+        }
+
+        private string CommandAt(int index)
+        {
+            var command = string.Empty;
+
+            try
+            {
+                command = _history[index];
+            }
+            catch { }
+
+            return command;
         }
 
         private int CurrentIndex
