@@ -7,16 +7,6 @@ public class GameControllerCommands : MonoBehaviour {
 
     public GameObject cube;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
     [ConsoleMethod("cube_rotate", "Rotates the cube by to the given angle.")]
     public void RotateCubeBy(float degrees)
     {
@@ -24,7 +14,7 @@ public class GameControllerCommands : MonoBehaviour {
     }
 
     [ConsoleMethod("cube_scale", "Scales the cube by the given factor.")]
-    public void ScaleCubeBy(float factor)
+    public void ScaleCubeBy([ConsoleParameter("Factor. 1 is default")] float factor)
     {
         cube.transform.localScale = Vector3.one * factor;
     }
