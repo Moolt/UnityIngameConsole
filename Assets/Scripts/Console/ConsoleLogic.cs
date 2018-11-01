@@ -34,8 +34,8 @@ namespace IngameConsole
             ConsoleWriter.WriteInfo("Write <b>help</b> for a list of all commands.");
             ConsoleWriter.WriteInfo("Write <b>chelp command</b> to get further info on a specific command.");
 
-            if(_consoleIO is ConsoleIO)
-            {                
+            if (_consoleIO is ConsoleIO)
+            {
                 ConsoleWriter.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", (_consoleIO as ConsoleIO).ToggleKey.ToString()));
             }
 
@@ -45,6 +45,7 @@ namespace IngameConsole
         #endregion
 
         #region Handle input
+
         private void OnInputReceived(object sender, InputReceivedEventArgs args)
         {
             ConsoleWriter.WriteLineItalic("> " + args.Input);
@@ -66,6 +67,46 @@ namespace IngameConsole
                 _consoleIO.SelectInput();
             }
         }
+
+        private IEnumerable<string> SplitParameters(string input)
+        {
+            //Implementation of the escape sequence \"
+            //Any occurence of \" will be replaced by a substitution string
+            //This string will be replaced with a quote after separation is complete
+            string quoteSubstitution = ">##>";
+            input = input.Replace(@"\""", quoteSubstitution);
+
+            //There has to be an even number of quotes (opening and closing)
+            if (input.Count(c => c == '"') % 2 != 0)
+            {
+                throw new Exception("Invalid string format.");
+            }
+
+            var splitsByQuote = input.Split('"');
+            var parameters = new List<string>();
+
+            for (int i = 0; i < splitsByQuote.Count(); i++)
+            {
+                //Splitting by quotes will result in list with a pattern of
+                //alternating (empty string or string) and (quoted string)
+                //Empty strings can be ignored
+                if (i % 2 == 0)
+                {
+                    //Normal parameters
+                    var splitsBySpace = splitsByQuote[i].Trim(' ').Split(' ').Where(s => s != string.Empty);
+                    parameters.AddRange(splitsBySpace);
+                }
+                else
+                {
+                    //Quoted parameters
+                    parameters.Add(splitsByQuote[i]);
+                }
+            }
+
+            parameters = parameters.Select(s => s.Replace(quoteSubstitution, @"""")).ToList();
+            return parameters;
+        }
+
         #endregion
 
         #region Reflection
@@ -115,7 +156,7 @@ namespace IngameConsole
 
         public void ExecuteLine(string line)
         {
-            string[] parameters = line.Split(' ');
+            string[] parameters = SplitParameters(line).ToArray();
             string command = parameters[0];
 
             MethodInfo targetMethod;
