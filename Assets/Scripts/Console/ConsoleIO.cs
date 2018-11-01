@@ -4,6 +4,10 @@ namespace IngameConsole
 {
     public static class ConsoleIO
     {
+        private static Color _errorColor = Color.red;
+        private static Color _infoColor = new Color32(30, 98, 206, 255);
+        private static Color _warningColor = new Color32(193, 166, 29, 255);
+
         private static IConsoleUI _consoleUI;
 
         public static void InitializeIO(IConsoleUI consoleUI)
@@ -43,14 +47,21 @@ namespace IngameConsole
 
         public static void WriteError(string text)
         {
-            OpenColor(Color.red);
+            OpenColor(_errorColor);
             WriteLine(text);
             CloseColor();
         }
 
         public static void WriteInfo(string text)
         {
-            OpenColor(new Color32(30, 98, 206, 255));
+            OpenColor(_infoColor);
+            WriteLine(text);
+            CloseColor();
+        }
+
+        public static void WriteWarning(string text)
+        {
+            OpenColor(_warningColor);
             WriteLine(text);
             CloseColor();
         }

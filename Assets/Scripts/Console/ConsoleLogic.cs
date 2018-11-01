@@ -103,7 +103,16 @@ namespace IngameConsole
 
         private bool TryFindExecutableInstanceOfType(Type type, out object instance)
         {
-            instance = FindObjectOfType(type);
+            var instances = FindObjectsOfType(type);
+            instance = instances.FirstOrDefault();
+
+            //Check for ambiguity
+            if(instances.Count() > 1)
+            {
+                var gameObjectName = (instance as UnityEngine.Object).name;
+                ConsoleIO.WriteWarning(string.Format("More than one instance found for type <b>{0}</b>. Choosing <b>{1}</b> for execution.", type.ToString(), gameObjectName));
+            }
+
             return instance != null;
         }
 
