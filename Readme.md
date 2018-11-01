@@ -91,10 +91,13 @@ Commands should also have distinct names across all executable scripts.
 
 These things might be helpful for you while working with the console.
 
+## String inputs
+Whenever you input a string as a parameter, it should not contain any spaces. This is a current restriction as strings with spaces will be assumed to be separate parameters. This also applies to names of GameObjects.
+
 ## GameObjects as Parameters
 
 `GameObjects` in the scene can also be passed to methods as parameters.
-If you pass a `GameObjects` name to the command, the reference to the `GameObject` will automatically be resolved and passed to the function. Please note that names containing spaces are currently not supported.
+If you pass a `GameObjects` name to the command, the reference to the `GameObject` will automatically be resolved and passed to the function.
 
 ```csharp
 [ConsoleMethod("destroy", "Destroys the object with the given name.")]
