@@ -108,11 +108,11 @@ The command above could be used like ``> destroy someObject``.
 
 ## Input history
 
-All commands, that were executed without an error, are stored. Use the arrow keys to navigate through earlier inputs.
+All commands entered by the user are stored. Use the arrow keys to navigate through earlier inputs.
 The amout of commands stored is limited to 10 by default.
 
-# IConsoleUI
+# BaseConsoleIO
 
-The `ConsoleLogic` script reads and writes to the UI via the `ConsoleUI` script. `ConsoleUI` implements the `IConsoleUI` interface and can therefore be replaced with any other class implementing this interface.
+The `ConsoleLogic` script reads and writes to the UI via the `ConsoleIO` script. `ConsoleIO` inherits from the `BaseConsoleIO` abstract class and can therefore be replaced with any other class inheriting from this base class.
 
 Instead of reading from an ui textbox you could, for example, read commands from a network stream. You could also output to a textfile instead.
