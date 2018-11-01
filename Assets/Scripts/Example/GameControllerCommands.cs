@@ -62,7 +62,13 @@ public class GameControllerCommands : MonoBehaviour
     {
         Destroy(gameObject);
     }
-    
+
+    [ConsoleMethod("print")]
+    public void Print(string text)
+    {
+        ConsoleWriter.WriteInfo(text);
+    }
+
     private bool CheckForCube()
     {
         if(cube == null)
