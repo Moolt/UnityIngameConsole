@@ -11,14 +11,16 @@ namespace IngameConsole
     public class ConsoleLogic : MonoBehaviour
     {
         [SerializeField]
-        private KeyCode consoleToggleKey = KeyCode.Tab;
+        private KeyCode _consoleToggleKey = KeyCode.Tab;
+        [SerializeField]
+        private int _inputHistoryCapacity = 10;
 
         private IConsoleUI _consoleUI;
         private ConsoleHistory _history;
 
         void Awake()
         {
-            _history = new ConsoleHistory(maxCapacity: 10);
+            _history = new ConsoleHistory(maxCapacity: _inputHistoryCapacity);
             _consoleUI = GetComponent(typeof(IConsoleUI)) as IConsoleUI;
             ConsoleIO.InitializeIO(_consoleUI);
         }
@@ -30,13 +32,13 @@ namespace IngameConsole
             ConsoleIO.WriteInfo("Console has been initialized");
             ConsoleIO.WriteInfo("Write <b>help</b> for a list of all commands.");
             ConsoleIO.WriteInfo("Write <b>chelp command</b> to get further info on a specific command.");
-            ConsoleIO.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", consoleToggleKey.ToString()));
+            ConsoleIO.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", _consoleToggleKey.ToString()));
             ConsoleIO.CloseColor();
         }
 
         void Update()
         {
-            if (Input.GetKeyDown(consoleToggleKey))
+            if (Input.GetKeyDown(_consoleToggleKey))
             {
                 _consoleUI.ToggleVisibility();
             }
