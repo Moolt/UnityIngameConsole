@@ -77,9 +77,6 @@ The image below shows a default parameter-name and a custom description using `[
 
 If you run into any problems, you may find some answers here.
 
-## String inputs
-Whenever you input a string as a parameter, it should not contain any spaces. This is a current restriction as strings with spaces will be assumed to be separate parameters. This also applies to names of GameObjects.
-
 ## Execution targets
 
 If you want the commands of any script to appear in the console, there should always be an instance of it in the scene.
@@ -94,7 +91,15 @@ Commands should also have distinct names across all executable scripts.
 
 These things might be helpful for you while working with the console.
 
-## GameObjects as Parameters
+## Strings as parameters
+
+![alt text](https://raw.githubusercontent.com/Moolt/UnityIngameConsole/master/Documentation/strings.png "screenshot")
+
+As long as the string, you want to pass, doesn't contain any spaces, you don't need to add quotes. When there are spaces, however, your string parameter has to start and end with double quotes so it can be interpreted as a single parameter.
+
+If the string should also contain double quotes the escape sequence `\"` can be used.
+
+## GameObjects as parameters
 
 `GameObjects` in the scene can also be passed to methods as parameters.
 If you pass a `GameObjects` name to the command, the reference to the `GameObject` will automatically be resolved and passed to the function.
@@ -107,7 +112,13 @@ public void DestroyObject([ConsoleParameter("Name of object.")] GameObject gameO
 }
 ```
 
-The command above could be used like ``> destroy someObject``.
+The command above could be used like 
+
+``> destroy someObject`` 
+
+or 
+
+``> destroy "some object"`` for names containing spaces.
 
 ## Input history
 
