@@ -77,7 +77,10 @@ The image below shows a default parameter-name and a custom description using `[
 
 If you run into any problems, you may find some answers here.
 
-## Target objects
+## String inputs
+Whenever you input a string as a parameter, it should not contain any spaces. This is a current restriction as strings with spaces will be assumed to be separate parameters. This also applies to names of GameObjects.
+
+## Execution targets
 
 If you want the commands of any script to appear in the console, there should always be an instance of it in the scene.
 Scripts without instances will __not__ show up in the console.
@@ -90,9 +93,6 @@ Commands should also have distinct names across all executable scripts.
 # Good to know
 
 These things might be helpful for you while working with the console.
-
-## String inputs
-Whenever you input a string as a parameter, it should not contain any spaces. This is a current restriction as strings with spaces will be assumed to be separate parameters. This also applies to names of GameObjects.
 
 ## GameObjects as Parameters
 
