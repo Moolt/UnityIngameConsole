@@ -94,7 +94,7 @@ These things might be helpful for you while working with the console.
 ## GameObjects as Parameters
 
 `GameObjects` in the scene can also be passed to methods as parameters.
-If you pass a `GameObjects` name to the command, the reference to the `GameObject` will automatically be resolved and passed to the function.
+If you pass a `GameObjects` name to the command, the reference to the `GameObject` will automatically be resolved and passed to the function. Please note that names containing spaces are currently not supported.
 
 ```csharp
 [ConsoleMethod("destroy", "Destroys the object with the given name.")]
