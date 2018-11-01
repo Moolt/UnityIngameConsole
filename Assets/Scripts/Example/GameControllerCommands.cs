@@ -41,4 +41,10 @@ public class GameControllerCommands : MonoBehaviour
         var mat = cubeRenderer.material;
         mat.SetColor("_Color", new Color(Random.value, Random.value, Random.value));
     }
+
+    [ConsoleMethod("destroy", "Destroys the object with the given name.")]
+    public void DestroyObject([ConsoleParameter("Name of object.")] GameObject gameObject)
+    {
+        Destroy(gameObject);
+    }
 }

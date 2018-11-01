@@ -143,13 +143,35 @@ namespace IngameConsole
                 ParameterInfo[] methodParams = targetMethod.GetParameters();
                 List<object> parameterValues = new List<object>();
 
+                //Check if the amount of parameters is as expected
                 if (methodParams.Length == parameters.Length - 1)
                 {
+                    //Convert all parameters to prepare for the invocation of the target method
                     for (int i = 0; i < methodParams.Length; i++)
                     {
                         try
                         {
-                            object converted = Convert.ChangeType(parameters[i + 1], methodParams[i].ParameterType);
+                            var parameterType = methodParams[i].ParameterType;
+                            var parameterValue = parameters[i + 1];
+                            object converted = null;
+
+                            //Try to find a GameObject with the given string name if the parameter is of type GameObject
+                            if(parameterType == typeof(GameObject))
+                            {
+                                converted = GameObject.Find(parameterValue.ToString());
+
+                                if(converted == null)
+                                {
+                                    ConsoleIO.WriteError(string.Format("GameObject with name <b>{0}</b> not found.", parameterValue.ToString()));
+                                    return;
+                                }
+                            }
+                            //Try to convert the string to the target type
+                            else
+                            {
+                                converted = Convert.ChangeType(parameterValue, parameterType);
+                            }
+
                             parameterValues.Add(converted);
                         }
                         catch
