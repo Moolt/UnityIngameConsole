@@ -6,7 +6,7 @@ namespace IngameConsole
     {
         private static Color _errorColor = Color.red;
         private static Color _infoColor = new Color32(30, 98, 206, 255);
-        private static Color _warningColor = new Color32(193, 166, 29, 255);
+        private static Color _warningColor = new Color32(170, 135, 30, 255);
 
         private static IConsoleUI _consoleUI;
 
