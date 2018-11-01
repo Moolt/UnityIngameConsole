@@ -30,7 +30,7 @@ namespace IngameConsole
             ConsoleIO.WriteInfo("Console has been initialized");
             ConsoleIO.WriteInfo("Write <b>help</b> for a list of all commands.");
             ConsoleIO.WriteInfo("Write <b>chelp command</b> to get further info on a specific command.");
-            ConsoleIO.WriteInfo("Press <b>Tab</b> to close console window.");
+            ConsoleIO.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", consoleToggleKey.ToString()));
             ConsoleIO.CloseColor();
         }
 
@@ -107,7 +107,7 @@ namespace IngameConsole
             instance = instances.FirstOrDefault();
 
             //Check for ambiguity
-            if(instances.Count() > 1)
+            if (instances.Count() > 1)
             {
                 var gameObjectName = (instance as UnityEngine.Object).name;
                 ConsoleIO.WriteWarning(string.Format("More than one instance found for type <b>{0}</b>. Choosing <b>{1}</b> for execution.", type.ToString(), gameObjectName));
@@ -165,11 +165,11 @@ namespace IngameConsole
                             object converted = null;
 
                             //Try to find a GameObject with the given string name if the parameter is of type GameObject
-                            if(parameterType == typeof(GameObject))
+                            if (parameterType == typeof(GameObject))
                             {
                                 converted = GameObject.Find(parameterValue.ToString());
 
-                                if(converted == null)
+                                if (converted == null)
                                 {
                                     ConsoleIO.WriteError(string.Format("GameObject with name <b>{0}</b> not found.", parameterValue.ToString()));
                                     return;
