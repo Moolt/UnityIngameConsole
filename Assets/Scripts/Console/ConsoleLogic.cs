@@ -7,92 +7,66 @@ using System;
 namespace IngameConsole
 {
     [ExecutableFromConsole]
-    [RequireComponent(typeof(ConsoleUI))]
+    [RequireComponent(typeof(BaseConsoleIO))]
     public class ConsoleLogic : MonoBehaviour
     {
-        [SerializeField]
-        private KeyCode _consoleToggleKey = KeyCode.Tab;
-        [SerializeField]
-        private int _inputHistoryCapacity = 10;
-
-        private IConsoleUI _consoleUI;
-        private ConsoleHistory _history;
+        private BaseConsoleIO _consoleIO;
 
         void Awake()
         {
-            _history = new ConsoleHistory(maxCapacity: _inputHistoryCapacity);
-            _consoleUI = GetComponent(typeof(IConsoleUI)) as IConsoleUI;
-            ConsoleIO.InitializeIO(_consoleUI);
+            _consoleIO = GetComponent(typeof(BaseConsoleIO)) as BaseConsoleIO;
+            _consoleIO.InputReceived += OnInputReceived;
+            ConsoleWriter.InitializeWriter(_consoleIO);
         }
 
         void Start()
         {
-            _consoleUI.SelectInput();
-            ConsoleIO.OpenColor(Color.red);
-            ConsoleIO.WriteInfo("Console has been initialized");
-            ConsoleIO.WriteInfo("Write <b>help</b> for a list of all commands.");
-            ConsoleIO.WriteInfo("Write <b>chelp command</b> to get further info on a specific command.");
-            ConsoleIO.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", _consoleToggleKey.ToString()));
-            ConsoleIO.CloseColor();
+            _consoleIO.SelectInput();
+            ShowInitializationMessage();
         }
 
-        void Update()
+        #region Intialization message
+
+        private void ShowInitializationMessage()
         {
-            if (Input.GetKeyDown(_consoleToggleKey))
-            {
-                _consoleUI.ToggleVisibility();
+            ConsoleWriter.OpenColor(Color.red);
+            ConsoleWriter.WriteInfo("Console has been initialized");
+            ConsoleWriter.WriteInfo("Write <b>help</b> for a list of all commands.");
+            ConsoleWriter.WriteInfo("Write <b>chelp command</b> to get further info on a specific command.");
+
+            if(_consoleIO is ConsoleIO)
+            {                
+                ConsoleWriter.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", (_consoleIO as ConsoleIO).ToggleKey.ToString()));
             }
 
-            if (_consoleUI.IsVisible)
+            ConsoleWriter.CloseColor();
+        }
+
+        #endregion
+
+        #region Handle input
+        private void OnInputReceived(object sender, InputReceivedEventArgs args)
+        {
+            ConsoleWriter.WriteLineItalic("> " + args.Input);
+
+            try
             {
-                if (Input.GetKeyDown(KeyCode.Return))
+                ExecuteLine(_consoleIO.Input);
+            }
+            catch (Exception e)
+            {
+                if (e.Message != string.Empty)
                 {
-                    ConsoleIO.WriteLineItalic("> " + _consoleUI.Input);
-
-                    try
-                    {
-                        ExecuteLine(_consoleUI.Input);
-                    }
-                    catch (Exception e)
-                    {
-                        if (e.Message != string.Empty)
-                        {
-                            ConsoleIO.WriteError(e.Message);
-                        }
-                    }
-                    finally
-                    {
-                        _consoleUI.ClearInput();
-                        _consoleUI.SelectInput();
-                    }
+                    ConsoleWriter.WriteError(e.Message);
                 }
-
-                HandleHistory();
+            }
+            finally
+            {
+                _consoleIO.ClearInput();
+                _consoleIO.SelectInput();
             }
         }
-
-        private void HandleHistory()
-        {
-            var historyRequested = false;
-            var command = string.Empty;
-
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                command = _history.ShiftBack();
-                historyRequested = true;
-            }
-
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                command = _history.ShiftForward();
-                historyRequested = true;
-            }
-
-            if (historyRequested && command != string.Empty)
-            {
-                _consoleUI.Input = command;
-            }
-        }
+        #endregion
 
         #region Reflection
 
@@ -112,7 +86,7 @@ namespace IngameConsole
             if (instances.Count() > 1)
             {
                 var gameObjectName = (instance as UnityEngine.Object).name;
-                ConsoleIO.WriteWarning(string.Format("More than one instance found for type <b>{0}</b>. Choosing <b>{1}</b> for execution.", type.ToString(), gameObjectName));
+                ConsoleWriter.WriteWarning(string.Format("More than one instance found for type <b>{0}</b>. Choosing <b>{1}</b> for execution.", type.ToString(), gameObjectName));
             }
 
             return instance != null;
@@ -173,7 +147,7 @@ namespace IngameConsole
 
                                 if (converted == null)
                                 {
-                                    ConsoleIO.WriteError(string.Format("GameObject with name <b>{0}</b> not found.", parameterValue.ToString()));
+                                    ConsoleWriter.WriteError(string.Format("GameObject with name <b>{0}</b> not found.", parameterValue.ToString()));
                                     return;
                                 }
                             }
@@ -195,7 +169,6 @@ namespace IngameConsole
                     if (TryFindExecutableInstanceOfType(targetMethod.DeclaringType, out target))
                     {
                         targetMethod.Invoke(target, parameterValues.ToArray());
-                        _history.WriteToHistory(line);
                     }
                     else
                     {
@@ -205,8 +178,8 @@ namespace IngameConsole
                 }
                 else
                 {
-                    ConsoleIO.WriteError((parameters.Length - 1).ToString() + " parameters given but " + methodParams.Length + " expected.");
-                    ConsoleIO.WriteError("Usage: " + GetUsageInformation(command, targetMethod));
+                    ConsoleWriter.WriteError((parameters.Length - 1).ToString() + " parameters given but " + methodParams.Length + " expected.");
+                    ConsoleWriter.WriteError("Usage: " + GetUsageInformation(command, targetMethod));
                     throw new Exception(string.Empty);
                 }
             }
@@ -275,7 +248,6 @@ namespace IngameConsole
                     AddParameterDescr(string.Format("[{0}]", pinfo.Name));
                 }
             }
-
             return description;
         }
 
@@ -286,12 +258,12 @@ namespace IngameConsole
         [ConsoleMethod("help", "Prints all available commands.")]
         private void HelpCmd()
         {
-            ConsoleIO.WriteLine("");
-            ConsoleIO.Write("<b>Available commands</b>: ");
+            ConsoleWriter.WriteLine("");
+            ConsoleWriter.Write("<b>Available commands</b>: ");
             MethodInfo[] methods = CommandMethods;
 
             var commands = string.Join(", ", methods.Select(m => GetCommandName(m)).ToArray());
-            ConsoleIO.Write(commands);
+            ConsoleWriter.Write(commands);
         }
 
         [ConsoleMethod("chelp", "Description of the given command.")]
@@ -300,12 +272,12 @@ namespace IngameConsole
             MethodInfo minfo = MethodByCmdName(cmdName);
             if (minfo != null)
             {
-                ConsoleIO.WriteLine(GetCommandDescr(minfo));
-                ConsoleIO.WriteLine("Usage: " + GetUsageInformation(cmdName, minfo));
+                ConsoleWriter.WriteLine(GetCommandDescr(minfo));
+                ConsoleWriter.WriteLine("Usage: " + GetUsageInformation(cmdName, minfo));
             }
             else
             {
-                ConsoleIO.WriteError("Invalid command <b>" + cmdName + "</b>.");
+                ConsoleWriter.WriteError("Invalid command <b>" + cmdName + "</b>.");
             }
         }
 
@@ -318,13 +290,13 @@ namespace IngameConsole
         [ConsoleMethod("close", "Closes the developers console.")]
         private void CloseConsole()
         {
-            _consoleUI.IsVisible = false;
+            _consoleIO.IsVisible = false;
         }
 
         [ConsoleMethod("clear", "Clears the console window from text.")]
         private void ClearConsole()
         {
-            _consoleUI.ClearOutput();
+            _consoleIO.ClearOutput();
         }
 
         #endregion

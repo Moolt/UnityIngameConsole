@@ -1,95 +1,132 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityInput = UnityEngine.Input;
 
 namespace IngameConsole
 {
-    public static class ConsoleIO
+    [RequireComponent(typeof(Animator))]
+    public class ConsoleIO : BaseConsoleIO
     {
-        private static Color _errorColor = Color.red;
-        private static Color _infoColor = new Color32(30, 98, 206, 255);
-        private static Color _warningColor = new Color32(170, 135, 30, 255);
+        [SerializeField]
+        private InputField input;
+        [SerializeField]
+        private Text outputText;
+        [SerializeField]
+        private KeyCode _consoleToggleKey = KeyCode.Tab;
+        [SerializeField]
+        private int _inputHistoryCapacity = 10;
 
-        private static IConsoleUI _consoleUI;
+        private ConsoleHistory _history;
+        private Animator animator;
+        private bool show = false;
 
-        public static void InitializeIO(IConsoleUI consoleUI)
+        void Awake()
         {
-            _consoleUI = consoleUI;
+            _history = new ConsoleHistory(maxCapacity: _inputHistoryCapacity);
+            animator = GetComponent<Animator>();
         }
 
-        public static void WriteLine(string text)
+        void Update()
         {
-            Write("\n" + text);
+            //Open or close console
+            if (UnityInput.GetKeyDown(_consoleToggleKey))
+            {
+                ToggleVisibility();
+            }
+
+            if (IsVisible)
+            {
+                //Command has been entered
+                if (UnityInput.GetKeyDown(KeyCode.Return))
+                {
+                    _history.WriteToHistory(Input);
+                    RaiseInputReceived();
+                }
+
+                HandleHistory();
+            }
         }
 
-        public static void Write(string text)
+        public override string Input
         {
-            _consoleUI.AppendToOutput(text);
+            get { return input.text; }
+            set { input.text = value; input.caretPosition = input.text.Length; }
         }
 
-        public static void WriteLineItalic(string text)
+        public override bool IsVisible
         {
-            WriteLine(string.Format("<i>{0}</i>", text));
+            get { return show; }
+            set
+            {
+                show = value;
+                ApplyConsoleState();
+            }
         }
 
-        public static void WriteItalic(string text)
+        public override void ToggleVisibility()
         {
-            Write(string.Format("<i>{0}</i>", text));
+            show = !show;
+            ApplyConsoleState();
         }
 
-        public static void WriteLineBold(string text)
+        public override void ClearInput()
         {
-            WriteLine(string.Format("<b>{0}</b>", text));
+            input.text = string.Empty;
         }
 
-        public static void WriteBold(string text)
+        public override void ClearOutput()
         {
-            Write(string.Format("<b>{0}</b>", text));
+            outputText.text = string.Empty;
         }
 
-        public static void WriteError(string text)
+        public override void SelectInput()
         {
-            OpenColor(_errorColor);
-            WriteLine(text);
-            CloseColor();
+            input.Select();
+            input.ActivateInputField();
         }
 
-        public static void WriteInfo(string text)
+        public override void AppendToOutput(string text)
         {
-            OpenColor(_infoColor);
-            WriteLine(text);
-            CloseColor();
+            outputText.text += text;
         }
 
-        public static void WriteWarning(string text)
+        public KeyCode ToggleKey
         {
-            OpenColor(_warningColor);
-            WriteLine(text);
-            CloseColor();
+            get { return _consoleToggleKey; }
         }
 
-        public static void OpenBold()
+        private void ApplyConsoleState()
         {
-            Write("<b>");
+            animator.SetBool("Show", show);
+
+            if (show)
+            {
+                ClearInput();
+                SelectInput();
+            }
         }
 
-        public static void CloseBold()
+        private void HandleHistory()
         {
-            Write("</b>");
-        }
+            var historyRequested = false;
+            var command = string.Empty;
 
-        public static void OpenColor(Color color)
-        {
-            string hexCol = ColorUtility.ToHtmlStringRGB(color);
-            Write(string.Format("<color=#{0}>", hexCol));
-        }
+            if (UnityInput.GetKeyDown(KeyCode.UpArrow))
+            {
+                command = _history.ShiftBack();
+                historyRequested = true;
+            }
 
-        public static void CloseColor()
-        {
-            Write("</color>");
-        }
+            if (UnityInput.GetKeyDown(KeyCode.DownArrow))
+            {
+                command = _history.ShiftForward();
+                historyRequested = true;
+            }
 
-        public static void NextLine()
-        {
-            Write("\n");
+            if (historyRequested && command != string.Empty)
+            {
+                Input = command;
+            }
         }
     }
 }

@@ -20,9 +20,9 @@ public class GameControllerCommands : MonoBehaviour
     {
         if(CheckForCube())
         {
-            ConsoleIO.NextLine();
-            ConsoleIO.Write("Current rotation is: ");
-            ConsoleIO.WriteBold(cube.transform.rotation.eulerAngles.ToString());
+            ConsoleWriter.NextLine();
+            ConsoleWriter.Write("Current rotation is: ");
+            ConsoleWriter.WriteBold(cube.transform.rotation.eulerAngles.ToString());
         }
     }
 
@@ -31,9 +31,9 @@ public class GameControllerCommands : MonoBehaviour
     {
         if(CheckForCube())
         {
-            ConsoleIO.NextLine();
-            ConsoleIO.Write("Current scale is: ");
-            ConsoleIO.WriteBold(cube.transform.localScale.ToString());
+            ConsoleWriter.NextLine();
+            ConsoleWriter.Write("Current scale is: ");
+            ConsoleWriter.WriteBold(cube.transform.localScale.ToString());
         }
     }
 
@@ -67,7 +67,7 @@ public class GameControllerCommands : MonoBehaviour
     {
         if(cube == null)
         {
-            ConsoleIO.WriteWarning("Cube not found.");
+            ConsoleWriter.WriteWarning("Cube not found.");
             return false;
         }
         return true;
