@@ -4,6 +4,10 @@ namespace IngameConsole
 {
     public class NetworkWriter : BaseConsoleWriter
     {
+        private const string baseIdentifier = "#>>";
+        private const string errorIdentifier = "x";
+        private const string warningIdentifier = "!";
+
         public override void CloseBold()
         {
             Write("'");
@@ -32,7 +36,7 @@ namespace IngameConsole
 
         public override void WriteError(string text)
         {
-            WriteLine(text);
+            WriteFormattedLine(text, errorIdentifier);
         }
 
         public override void WriteInfo(string text)
@@ -57,12 +61,17 @@ namespace IngameConsole
 
         public override void WriteWarning(string text)
         {
-            WriteLine(text);
+            WriteFormattedLine(text, warningIdentifier);
         }
 
         public override void WriteLine(string text)
         {
             Write(text + "\n");
+        }
+
+        private void WriteFormattedLine(string text, string type)
+        {
+            WriteLine(string.Format("{0}{1}{2}", baseIdentifier, type, text));
         }
     }
 }

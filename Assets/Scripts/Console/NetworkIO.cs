@@ -14,10 +14,12 @@ namespace IngameConsole
     {
         public string ip = "127.0.0.1";
         public int port = 6001;
+        public bool logDebugInfo = false;
 
         private string _input = string.Empty;
         private string _output = string.Empty;
         private Queue<string> _queuedCommands = new Queue<string>();
+        private string welcomeMessage;
 
         private void Awake()
         {
@@ -29,6 +31,8 @@ namespace IngameConsole
             var serverThread = new Thread(new ThreadStart(StartServer));
             serverThread.IsBackground = true;
             serverThread.Start();
+            welcomeMessage = _output;
+            _output = string.Empty;
         }
 
         private void Update()
@@ -65,14 +69,14 @@ namespace IngameConsole
             }
             catch (Exception e)
             {
-                Debug.Log(e.Message);
+                Log(e.Message);
             }
             finally
             {
                 if (listener != null)
                 {
                     listener.Stop();
-                    Debug.Log("Server stopped.");
+                    Log("Server stopped.");
                 }
             }
         }
@@ -83,23 +87,26 @@ namespace IngameConsole
             listener = new TcpListener(localAddress, port);
 
             listener.Start();
-            Debug.Log("Server started.");
+            Log("Server started.");
+
+            AppendToOutput(welcomeMessage);
 
             while (true)
             {
-                Debug.Log("Listening for incoming connections...");
+                Log("Listening for incoming connections...");
                 var client = listener.AcceptTcpClient();
 
-                Debug.Log("Client connection established.");
+                Log("Client connection established.");
                 var writer = new StreamWriter(client.GetStream());
                 var reader = new StreamReader(client.GetStream());
                 //Write existing output to client
                 WriteOutputToClient(writer);
 
-                var clientMessage = string.Empty;
-                while ((clientMessage = reader.ReadLine()) != null && clientMessage != "exit")
+                var clientMessage = string.Empty;                
+
+                while (IsClientConnected(reader) && (clientMessage = reader.ReadLine()) != null && clientMessage != "exit")
                 {
-                    Debug.Log("<-" + clientMessage);
+                    Log("<-" + clientMessage);
 
                     EnqueueCommand(clientMessage);
                     WaitForExecution();
@@ -107,7 +114,7 @@ namespace IngameConsole
                     WriteOutputToClient(writer);
                 }
 
-                Debug.Log("Client connection has been lost.");
+                Log("Client connection has been lost.");
                 writer.Close();
                 reader.Close();
                 client.Close();
@@ -129,6 +136,7 @@ namespace IngameConsole
                 //Don't write empty line or the command
                 if (s == string.Empty || s.StartsWith("> ")) continue;
 
+                Log("-> " + s);
                 writer.WriteLine(s);
                 writer.Flush();
             }
@@ -161,6 +169,27 @@ namespace IngameConsole
         private void WaitForExecution()
         {
             while (HasQueuedCommands) { Thread.Sleep(50); }
+        }
+
+        private void Log(string text)
+        {
+            if (logDebugInfo)
+            {
+                Debug.Log(text);
+            }
+        }
+
+        private bool IsClientConnected(StreamReader reader)
+        {
+            try
+            {
+                reader.Peek();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

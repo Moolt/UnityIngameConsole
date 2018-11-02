@@ -20,11 +20,15 @@ namespace IngameConsole
             _consoleIO.InputReceived += OnInputReceived;
             //Init Writer
             BaseConsoleWriter.InitializeWriter(_consoleIO);
+        }
+
+        private void Start()
+        {
             _consoleWriter = BaseConsoleIO.Writer;
             //Init IO
             _consoleIO.SelectInput();
-            ShowInitializationMessage();
-        }        
+            ShowInitializationMessage();            
+        }
 
         #region Intialization message
 
@@ -155,6 +159,12 @@ namespace IngameConsole
         public void ExecuteLine(string line)
         {
             string[] parameters = SplitParameters(line).ToArray();
+
+            if (parameters.Count() == 0)
+            {
+                throw new Exception("Empty input.");
+            }
+
             string command = parameters[0];
 
             MethodInfo targetMethod;
