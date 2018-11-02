@@ -5,6 +5,12 @@ using IngameConsole;
 public class GameControllerCommands : MonoBehaviour
 {
     public GameObject cube;
+    private BaseConsoleWriter _consoleWriter;
+
+    private void Awake()
+    {
+        _consoleWriter = BaseConsoleIO.Writer;
+    }
 
     [ConsoleMethod("cube_rotate", "Rotates the cube by to the given angle.")]
     public void RotateCubeBy(float degrees)
@@ -20,9 +26,9 @@ public class GameControllerCommands : MonoBehaviour
     {
         if(CheckForCube())
         {
-            ConsoleWriter.NextLine();
-            ConsoleWriter.Write("Current rotation is: ");
-            ConsoleWriter.WriteBold(cube.transform.rotation.eulerAngles.ToString());
+            _consoleWriter.NextLine();
+            _consoleWriter.Write("Current rotation is: ");
+            _consoleWriter.WriteBold(cube.transform.rotation.eulerAngles.ToString());
         }
     }
 
@@ -31,9 +37,9 @@ public class GameControllerCommands : MonoBehaviour
     {
         if(CheckForCube())
         {
-            ConsoleWriter.NextLine();
-            ConsoleWriter.Write("Current scale is: ");
-            ConsoleWriter.WriteBold(cube.transform.localScale.ToString());
+            _consoleWriter.NextLine();
+            _consoleWriter.Write("Current scale is: ");
+            _consoleWriter.WriteBold(cube.transform.localScale.ToString());
         }
     }
 
@@ -66,14 +72,14 @@ public class GameControllerCommands : MonoBehaviour
     [ConsoleMethod("print")]
     public void Print(string text)
     {
-        ConsoleWriter.WriteInfo(text);
+        _consoleWriter.WriteInfo(text);
     }
 
     private bool CheckForCube()
     {
         if(cube == null)
         {
-            ConsoleWriter.WriteWarning("Cube not found.");
+            _consoleWriter.WriteWarning("Cube not found.");
             return false;
         }
         return true;

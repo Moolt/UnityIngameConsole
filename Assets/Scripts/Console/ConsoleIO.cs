@@ -22,6 +22,7 @@ namespace IngameConsole
 
         void Awake()
         {
+            _writer = new ConsoleWriter();
             _history = new ConsoleHistory(maxCapacity: _inputHistoryCapacity);
             animator = GetComponent<Animator>();
         }

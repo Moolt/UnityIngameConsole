@@ -11,35 +11,33 @@ namespace IngameConsole
     public class ConsoleLogic : MonoBehaviour
     {
         private BaseConsoleIO _consoleIO;
+        private BaseConsoleWriter _consoleWriter;
 
         void Awake()
         {
+            //Connect with IO
             _consoleIO = GetComponent(typeof(BaseConsoleIO)) as BaseConsoleIO;
             _consoleIO.InputReceived += OnInputReceived;
-            ConsoleWriter.InitializeWriter(_consoleIO);
-        }
-
-        void Start()
-        {
+            //Init Writer
+            BaseConsoleWriter.InitializeWriter(_consoleIO);
+            _consoleWriter = BaseConsoleIO.Writer;
+            //Init IO
             _consoleIO.SelectInput();
             ShowInitializationMessage();
-        }
+        }        
 
         #region Intialization message
 
         private void ShowInitializationMessage()
         {
-            ConsoleWriter.OpenColor(Color.red);
-            ConsoleWriter.WriteInfo("Console has been initialized");
-            ConsoleWriter.WriteInfo("Write <b>help</b> for a list of all commands.");
-            ConsoleWriter.WriteInfo("Write <b>chelp command</b> to get further info on a specific command.");
+            _consoleWriter.WriteInfo("Console has been initialized");
+            _consoleWriter.WriteInfo("Write <b>help</b> for a list of all commands.");
+            _consoleWriter.WriteInfo("Write <b>chelp command</b> to get further info on a specific command.");
 
             if (_consoleIO is ConsoleIO)
             {
-                ConsoleWriter.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", (_consoleIO as ConsoleIO).ToggleKey.ToString()));
+                _consoleWriter.WriteInfo(string.Format("Press <b>{0}</b> to close console window.", (_consoleIO as ConsoleIO).ToggleKey.ToString()));
             }
-
-            ConsoleWriter.CloseColor();
         }
 
         #endregion
@@ -48,7 +46,7 @@ namespace IngameConsole
 
         private void OnInputReceived(object sender, InputReceivedEventArgs args)
         {
-            ConsoleWriter.WriteLineItalic("> " + args.Input);
+            _consoleWriter.WriteLineItalic("> " + args.Input);
 
             try
             {
@@ -58,7 +56,7 @@ namespace IngameConsole
             {
                 if (e.Message != string.Empty)
                 {
-                    ConsoleWriter.WriteError(e.Message);
+                    _consoleWriter.WriteError(e.Message);
                 }
             }
             finally
@@ -127,7 +125,7 @@ namespace IngameConsole
             if (instances.Count() > 1)
             {
                 var gameObjectName = (instance as UnityEngine.Object).name;
-                ConsoleWriter.WriteWarning(string.Format("More than one instance found for type <b>{0}</b>. Choosing <b>{1}</b> for execution.", type.ToString(), gameObjectName));
+                _consoleWriter.WriteWarning(string.Format("More than one instance found for type <b>{0}</b>. Choosing <b>{1}</b> for execution.", type.ToString(), gameObjectName));
             }
 
             return instance != null;
@@ -188,7 +186,7 @@ namespace IngameConsole
 
                                 if (converted == null)
                                 {
-                                    ConsoleWriter.WriteError(string.Format("GameObject with name <b>{0}</b> not found.", parameterValue.ToString()));
+                                    _consoleWriter.WriteError(string.Format("GameObject with name <b>{0}</b> not found.", parameterValue.ToString()));
                                     return;
                                 }
                             }
@@ -219,8 +217,8 @@ namespace IngameConsole
                 }
                 else
                 {
-                    ConsoleWriter.WriteError((parameters.Length - 1).ToString() + " parameters given but " + methodParams.Length + " expected.");
-                    ConsoleWriter.WriteError("Usage: " + GetUsageInformation(command, targetMethod));
+                    _consoleWriter.WriteError((parameters.Length - 1).ToString() + " parameters given but " + methodParams.Length + " expected.");
+                    _consoleWriter.WriteError("Usage: " + GetUsageInformation(command, targetMethod));
                     throw new Exception(string.Empty);
                 }
             }
@@ -299,12 +297,12 @@ namespace IngameConsole
         [ConsoleMethod("help", "Prints all available commands.")]
         private void HelpCmd()
         {
-            ConsoleWriter.WriteLine("");
-            ConsoleWriter.Write("<b>Available commands</b>: ");
+            _consoleWriter.WriteLine("");
+            _consoleWriter.Write("<b>Available commands</b>: ");
             MethodInfo[] methods = CommandMethods;
 
             var commands = string.Join(", ", methods.Select(m => GetCommandName(m)).ToArray());
-            ConsoleWriter.Write(commands);
+            _consoleWriter.Write(commands);
         }
 
         [ConsoleMethod("chelp", "Description of the given command.")]
@@ -313,12 +311,12 @@ namespace IngameConsole
             MethodInfo minfo = MethodByCmdName(cmdName);
             if (minfo != null)
             {
-                ConsoleWriter.WriteLine(GetCommandDescr(minfo));
-                ConsoleWriter.WriteLine("Usage: " + GetUsageInformation(cmdName, minfo));
+                _consoleWriter.WriteLine(GetCommandDescr(minfo));
+                _consoleWriter.WriteLine("Usage: " + GetUsageInformation(cmdName, minfo));
             }
             else
             {
-                ConsoleWriter.WriteError("Invalid command <b>" + cmdName + "</b>.");
+                _consoleWriter.WriteError("Invalid command <b>" + cmdName + "</b>.");
             }
         }
 

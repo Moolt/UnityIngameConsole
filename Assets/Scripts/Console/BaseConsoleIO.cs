@@ -5,9 +5,19 @@ namespace IngameConsole
 {
     public abstract class BaseConsoleIO : MonoBehaviour
     {
+        protected static BaseConsoleWriter _writer;
+
         public delegate void InputReceivedEventHandler(object sender, InputReceivedEventArgs e);
 
         public event InputReceivedEventHandler InputReceived;
+
+        public static BaseConsoleWriter Writer 
+        {
+            get
+            {
+                return _writer;
+            }
+        }
 
         /// <summary>
         /// Informs the ConsoleLogic about input changes
@@ -24,20 +34,21 @@ namespace IngameConsole
         public abstract string Input { get; set; }
 
         /// <summary>
+        /// Adds the given text to the output window.
+        /// Use ConsoleIO instead if you want to write to the console.
+        /// </summary>
+
+        public abstract void AppendToOutput(string text);
+
+        /// <summary>
         /// Clears current text from input field.
         /// </summary>
-        public abstract void ClearInput();
+        public virtual void ClearInput() { }
 
         /// <summary>
         /// Clears all output lines from the console window.
         /// </summary>
-        public abstract void ClearOutput();
-
-        /// <summary>
-        /// Adds the given text to the output window.
-        /// Use ConsoleIO instead if you want to write to the console.
-        /// </summary>
-        public abstract void AppendToOutput(string text);
+        public virtual void ClearOutput() { }
 
         /// <summary>
         /// Sets selection to input field.
