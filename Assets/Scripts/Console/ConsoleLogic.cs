@@ -11,23 +11,24 @@ namespace IngameConsole
     public class ConsoleLogic : MonoBehaviour
     {
         private BaseConsoleIO _consoleIO;
-        private BaseConsoleWriter _consoleWriter;
+        private BaseWriter _consoleWriter;
 
         void Awake()
         {
             //Connect with IO
             _consoleIO = GetComponent(typeof(BaseConsoleIO)) as BaseConsoleIO;
             _consoleIO.InputReceived += OnInputReceived;
-            //Init Writer
-            BaseConsoleWriter.InitializeWriter(_consoleIO);
         }
 
         private void Start()
         {
-            _consoleWriter = BaseConsoleIO.Writer;
+            //Initialize writer
+            FormattedWriter.Initialize();
+            _consoleWriter = new FormattedWriter();
+
             //Init IO
             _consoleIO.SelectInput();
-            ShowInitializationMessage();            
+            ShowInitializationMessage();
         }
 
         #region Intialization message

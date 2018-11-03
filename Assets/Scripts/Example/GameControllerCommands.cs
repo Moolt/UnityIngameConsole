@@ -5,17 +5,17 @@ using IngameConsole;
 public class GameControllerCommands : MonoBehaviour
 {
     public GameObject cube;
-    private BaseConsoleWriter _consoleWriter;
+    private BaseWriter _consoleWriter;
 
     private void Awake()
     {
-        _consoleWriter = BaseConsoleIO.Writer;
+        _consoleWriter = new FormattedWriter();
     }
 
     [ConsoleMethod("cube_rotate", "Rotates the cube by to the given angle.")]
     public void RotateCubeBy(float degrees)
     {
-        if(CheckForCube())
+        if (CheckForCube())
         {
             cube.transform.Rotate(Vector3.up, degrees, Space.World);
         }
@@ -24,7 +24,7 @@ public class GameControllerCommands : MonoBehaviour
     [ConsoleMethod("cube_rotation", "Prints the current rotation of the cube.")]
     public void GetRotation()
     {
-        if(CheckForCube())
+        if (CheckForCube())
         {
             _consoleWriter.NextLine();
             _consoleWriter.Write("Current rotation is: ");
@@ -35,7 +35,7 @@ public class GameControllerCommands : MonoBehaviour
     [ConsoleMethod("cube_scaling", "Prints the current scale of the cube.")]
     public void GetScale()
     {
-        if(CheckForCube())
+        if (CheckForCube())
         {
             _consoleWriter.NextLine();
             _consoleWriter.Write("Current scale is: ");
@@ -46,7 +46,7 @@ public class GameControllerCommands : MonoBehaviour
     [ConsoleMethod("cube_scale", "Scales the cube by the given factor.")]
     public void ScaleCubeBy([ConsoleParameter("Factor. 1 is default")] float factor)
     {
-        if(CheckForCube())
+        if (CheckForCube())
         {
             cube.transform.localScale = Vector3.one * factor;
         }
@@ -55,7 +55,7 @@ public class GameControllerCommands : MonoBehaviour
     [ConsoleMethod("cube_random_color", "Randomizes the color of the cube.")]
     public void RandomizeCubeColor()
     {
-        if(CheckForCube())
+        if (CheckForCube())
         {
             var cubeRenderer = cube.GetComponent<MeshRenderer>();
             var mat = cubeRenderer.material;
@@ -77,7 +77,7 @@ public class GameControllerCommands : MonoBehaviour
 
     private bool CheckForCube()
     {
-        if(cube == null)
+        if (cube == null)
         {
             _consoleWriter.WriteWarning("Cube not found.");
             return false;

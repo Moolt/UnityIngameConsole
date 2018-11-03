@@ -16,13 +16,14 @@ namespace IngameConsole
         [SerializeField]
         private int _inputHistoryCapacity = 10;
 
+        private ConsoleWriter _writer;
         private ConsoleHistory _history;
         private Animator animator;
         private bool show = false;
 
         void Awake()
         {
-            _writer = new ConsoleWriter();
+            _writer = new ConsoleWriter(this);
             _history = new ConsoleHistory(maxCapacity: _inputHistoryCapacity);
             animator = GetComponent<Animator>();
         }
@@ -94,6 +95,14 @@ namespace IngameConsole
         public KeyCode ToggleKey
         {
             get { return _consoleToggleKey; }
+        }
+
+        public override BaseWriter Writer
+        {
+            get
+            {
+                return _writer;
+            }
         }
 
         private void ApplyConsoleState()

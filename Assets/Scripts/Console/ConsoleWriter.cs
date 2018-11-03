@@ -2,11 +2,13 @@
 
 namespace IngameConsole
 {
-    public class ConsoleWriter : BaseConsoleWriter
+    public class ConsoleWriter : BaseWriter
     {
         private Color _errorColor = Color.red;
         private Color _infoColor = new Color32(30, 98, 206, 255);
-        private Color _warningColor = new Color32(170, 135, 30, 255);        
+        private Color _warningColor = new Color32(170, 135, 30, 255);
+
+        public ConsoleWriter(BaseConsoleIO consoleIO) : base(consoleIO) { }
 
         public override void WriteLine(string text)
         {

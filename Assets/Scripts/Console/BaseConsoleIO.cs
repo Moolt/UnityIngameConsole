@@ -5,19 +5,15 @@ namespace IngameConsole
 {
     public abstract class BaseConsoleIO : MonoBehaviour
     {
-        protected static BaseConsoleWriter _writer;
-
         public delegate void InputReceivedEventHandler(object sender, InputReceivedEventArgs e);
 
         public event InputReceivedEventHandler InputReceived;
 
-        public static BaseConsoleWriter Writer 
-        {
-            get
-            {
-                return _writer;
-            }
-        }
+        /// <summary>
+        /// Helper class to format input text
+        /// Needs to be initialized in the Awake method
+        /// </summary>
+        public abstract BaseWriter Writer { get; }
 
         /// <summary>
         /// Informs the ConsoleLogic about input changes

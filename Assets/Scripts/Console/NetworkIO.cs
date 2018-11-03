@@ -20,13 +20,14 @@ namespace IngameConsole
         private string _output = string.Empty;
         private Queue<string> _queuedCommands = new Queue<string>();
         private string welcomeMessage;
+        private BaseWriter _writer;
 
         private void Awake()
         {
-            _writer = new NetworkWriter();
+            _writer = new NetworkWriter(this);
         }
 
-        void Start()
+        private void Start()
         {
             var serverThread = new Thread(new ThreadStart(StartServer));
             serverThread.IsBackground = true;
@@ -45,6 +46,51 @@ namespace IngameConsole
                     _input = _queuedCommands.Dequeue();
                     RaiseInputReceived();
                 }
+            }
+        }
+
+        public override BaseWriter Writer
+        {
+            get
+            {
+                return _writer;
+            }
+        }
+
+        public override string Input
+        {
+            get { return _input; }
+            set { _input = value; }
+        }
+
+        public override void AppendToOutput(string text)
+        {
+            lock (_output)
+            {
+                _output += text;
+            }
+        }
+
+        private void WriteOutputToClient(StreamWriter writer)
+        {
+            var splitStrings = _output.Split(new char[] { '\n' });
+
+            foreach (string s in splitStrings)
+            {
+                //Don't write empty line or the command
+                if (s == string.Empty || s.StartsWith("> ")) continue;
+
+                Log("-> " + s);
+                writer.WriteLine(s);
+                writer.Flush();
+            }
+
+            writer.Write('\0');
+            writer.Flush();
+
+            lock (_output)
+            {
+                _output = string.Empty;
             }
         }
 
@@ -102,7 +148,7 @@ namespace IngameConsole
                 //Write existing output to client
                 WriteOutputToClient(writer);
 
-                var clientMessage = string.Empty;                
+                var clientMessage = string.Empty;
 
                 while (IsClientConnected(reader) && (clientMessage = reader.ReadLine()) != null && clientMessage != "exit")
                 {
@@ -118,43 +164,6 @@ namespace IngameConsole
                 writer.Close();
                 reader.Close();
                 client.Close();
-            }
-        }
-
-        public override string Input
-        {
-            get { return _input; }
-            set { _input = value; }
-        }
-
-        private void WriteOutputToClient(StreamWriter writer)
-        {
-            var splitStrings = _output.Split(new char[] { '\n' });
-
-            foreach (string s in splitStrings)
-            {
-                //Don't write empty line or the command
-                if (s == string.Empty || s.StartsWith("> ")) continue;
-
-                Log("-> " + s);
-                writer.WriteLine(s);
-                writer.Flush();
-            }
-
-            writer.Write('\0');
-            writer.Flush();
-
-            lock (_output)
-            {
-                _output = string.Empty;
-            }
-        }
-
-        public override void AppendToOutput(string text)
-        {
-            lock (_output)
-            {
-                _output += text;
             }
         }
 

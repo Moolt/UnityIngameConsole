@@ -1,12 +1,12 @@
-﻿using UnityEngine;
-
-namespace IngameConsole
+﻿namespace IngameConsole
 {
-    public class NetworkWriter : BaseConsoleWriter
+    public class NetworkWriter : BaseWriter
     {
         private const string baseIdentifier = "#>>";
         private const string errorIdentifier = "x";
         private const string warningIdentifier = "!";
+
+        public NetworkWriter(BaseConsoleIO consoleIO) : base(consoleIO) { }
 
         public override void CloseBold()
         {

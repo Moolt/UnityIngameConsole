@@ -2,11 +2,13 @@
 
 namespace IngameConsole
 {
-    public abstract class BaseConsoleWriter
+    public abstract class BaseWriter
     {
-        protected static BaseConsoleIO _consoleIO;
+        protected readonly BaseConsoleIO _consoleIO;
 
-        public static void InitializeWriter(BaseConsoleIO consoleIO)
+        public BaseWriter() { }
+
+        public BaseWriter(BaseConsoleIO consoleIO)
         {
             _consoleIO = consoleIO;
         }
