@@ -2,7 +2,7 @@
 
 This handy Unity plug-in helps you to implement your own developer console for your game. It's very easy to set up and enables you to call already existing code from the console with little to none effort.
 
-The plug-in also comes with a ui prefab that works out of the box but can be easily extended to your hearts content.
+The plug-in also comes with a ui prefab that works out of the box but can be easily extended to your hearts content. There's also a networking prefab to call commands via a TCP client.
 
 ## Setup
 
@@ -25,13 +25,14 @@ Aditionally, you have to mark the methods you want to call from the console by a
 
 The code below is taken from the demo project. The method `RotateCubeBy` is registered as the `cube_rotate` command and takes one parameter.
 
-`cube_rotation` takes no parameter and just outputs text to the console using the static class `ConsoleIO`.
+`cube_rotation` takes no parameter and just outputs text to the console using an instance of the `FormattedWriter` class.
 
 ```csharp
 [ExecutableFromConsole]
 public class GameControllerCommands : MonoBehaviour
 {
     public GameObject cube;
+    private BaseWriter _writer = new FormattedWriter();
 
     [ConsoleMethod("cube_rotate", "Rotates the cube by to the given angle.")]
     public void RotateCubeBy(float degrees)
@@ -42,9 +43,9 @@ public class GameControllerCommands : MonoBehaviour
     [ConsoleMethod("cube_rotation", "Prints the current rotation of the cube.")]
     public void GetRotation()
     {
-        ConsoleIO.NextLine();
-        ConsoleIO.Write("Current rotation is: ");
-        ConsoleIO.WriteBold(cube.transform.rotation.eulerAngles.ToString());
+        _writer.NextLine();
+        _writer.Write("Current rotation is: ");
+        _writer.WriteBold(cube.transform.rotation.eulerAngles.ToString());
     }
 
     // [...]
@@ -84,8 +85,9 @@ Scripts without instances will __not__ show up in the console.
 
 ## Ambiguity
 
-GameObjects containing executable scripts should be limited to one instance per scene to avoid ambiguity.
-Commands should also have distinct names across all executable scripts.
+1. GameObjects containing executable scripts should be limited to one instance per scene to avoid ambiguity.
+2. Commands should have distinct names across all executable scripts.
+3. Only use one `BaseConsoleIO` instance per scene. You cannot use both `NetworkIO` and `ConsoleIO` concurrently.
 
 # Good to know
 
@@ -125,8 +127,14 @@ or
 All commands entered by the user are stored. Use the arrow keys to navigate through earlier inputs.
 The amout of commands stored is limited to 10 by default.
 
-# BaseConsoleIO
+# Extendable IO
+
+![alt text](https://raw.githubusercontent.com/Moolt/UnityIngameConsole/master/Documentation/diagram.png "screenshot")
 
 The `ConsoleLogic` script reads and writes to the UI via the `ConsoleIO` script. `ConsoleIO` inherits from the `BaseConsoleIO` abstract class and can therefore be replaced with any other class inheriting from this base class.
 
-Instead of reading from an ui textbox you could, for example, read commands from a network stream. You could also output to a textfile instead.
+![alt text](https://raw.githubusercontent.com/Moolt/UnityIngameConsole/master/Documentation/console.png "screenshot")
+
+As an example, I've also implemented a `NetworkIO` class that starts a TCP server to receive commands remotely. The client will send the input to the server, is executed and the output will then be sent back to the client. A client implementation can be downloded [here](https://github.com/Moolt/ConsoleClient).
+
+A custom `BaseConsoleIO` implementation usually requires you to also implement a custom `BaseWriter` class to format the output correctly.
