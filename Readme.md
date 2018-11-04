@@ -156,7 +156,7 @@ See the [unity documentation](https://docs.unity3d.com/ScriptReference/Color.htm
 
 In order to write your own conversions, you have to create a new class inheriting from `BaseConverter<T>`, where the generic parameter `T` is the type you want to convert to.
 
-Every conversion method has to be tagged with the `[ConversionMethod]` attribute. The methods names are irrelevant, only the parameters are imported. When the user enters two parameters, like `1,2`, the BaseConverter will search for any method with two parameters and tries to convert the types accordingly. If no errors occur up to this point, the conversion method will be invoked.
+Every conversion method has to be tagged with the `[ConversionMethod]` attribute. The methods names are irrelevant, only the parameters are important. When the user enters two parameters, like `1,2`, the BaseConverter will search for any method with two parameters and tries to convert the types accordingly. If no errors occur up to this point, the conversion method will be invoked.
 This all happens automatically, so you don't have to register your new class anywhere and there is really no other logic to implement than the actual conversion. A complete implementation could look like the following example:
 
 ```csharp
