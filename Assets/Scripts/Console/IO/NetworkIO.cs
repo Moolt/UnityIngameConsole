@@ -10,7 +10,7 @@ using UnityEngine;
 namespace IngameConsole
 {
     [RequireComponent(typeof(ConsoleLogic))]
-    public class NetworkIO : BaseConsoleIO
+    public class NetworkIO : BaseConsoleIO<NetworkWriter>
     {
         public string ip = "127.0.0.1";
         public int port = 6001;
@@ -20,15 +20,9 @@ namespace IngameConsole
         private string _output = string.Empty;
         private Queue<string> _queuedCommands = new Queue<string>();
         private string welcomeMessage;
-        private BaseWriter _writer;
         private TcpClient _client;
         private TcpListener _listener;
         private bool _applicationExited = false;
-
-        private void Awake()
-        {
-            _writer = new NetworkWriter(this);
-        }
 
         private void Start()
         {
@@ -49,14 +43,6 @@ namespace IngameConsole
                     _input = _queuedCommands.Dequeue();
                     RaiseInputReceived();
                 }
-            }
-        }
-
-        public override BaseWriter Writer
-        {
-            get
-            {
-                return _writer;
             }
         }
 

@@ -5,27 +5,26 @@ using UnityInput = UnityEngine.Input;
 namespace IngameConsole
 {
     [RequireComponent(typeof(Animator))]
-    public class ConsoleIO : BaseConsoleIO
+    public class ConsoleIO : BaseConsoleIO<ConsoleWriter>
     {
         [SerializeField]
-        private InputField input;
+        private InputField _input;
         [SerializeField]
-        private Text outputText;
+        private Text _outputText;
         [SerializeField]
         private KeyCode _consoleToggleKey = KeyCode.Tab;
         [SerializeField]
         private int _inputHistoryCapacity = 10;
 
-        private ConsoleWriter _writer;
         private ConsoleHistory _history;
-        private Animator animator;
-        private bool show = false;
+        private Animator _animator;
+        private bool _show = false;
 
-        void Awake()
+        protected override void Awake()
         {
-            _writer = new ConsoleWriter(this);
+            base.Awake();
             _history = new ConsoleHistory(maxCapacity: _inputHistoryCapacity);
-            animator = GetComponent<Animator>();
+            _animator = GetComponent<Animator>();
         }
 
         void Update()
@@ -51,45 +50,45 @@ namespace IngameConsole
 
         public override string Input
         {
-            get { return input.text; }
-            set { input.text = value; input.caretPosition = input.text.Length; }
+            get { return _input.text; }
+            set { _input.text = value; _input.caretPosition = _input.text.Length; }
         }
 
         public override bool IsVisible
         {
-            get { return show; }
+            get { return _show; }
             set
             {
-                show = value;
+                _show = value;
                 ApplyConsoleState();
             }
         }
 
         public override void ToggleVisibility()
         {
-            show = !show;
+            _show = !_show;
             ApplyConsoleState();
         }
 
         public override void ClearInput()
         {
-            input.text = string.Empty;
+            _input.text = string.Empty;
         }
 
         public override void ClearOutput()
         {
-            outputText.text = string.Empty;
+            _outputText.text = string.Empty;
         }
 
         public override void SelectInput()
         {
-            input.Select();
-            input.ActivateInputField();
+            _input.Select();
+            _input.ActivateInputField();
         }
 
         public override void AppendToOutput(string text)
         {
-            outputText.text += text;
+            _outputText.text += text;
         }
 
         public KeyCode ToggleKey
@@ -97,19 +96,11 @@ namespace IngameConsole
             get { return _consoleToggleKey; }
         }
 
-        public override BaseWriter Writer
-        {
-            get
-            {
-                return _writer;
-            }
-        }
-
         private void ApplyConsoleState()
         {
-            animator.SetBool("Show", show);
+            _animator.SetBool("Show", _show);
 
-            if (show)
+            if (_show)
             {
                 ClearInput();
                 SelectInput();

@@ -64,4 +64,22 @@ namespace IngameConsole
         /// </summary>
         public virtual void ToggleVisibility() { }
     }
+
+    public abstract class BaseConsoleIO<T> : BaseConsoleIO where T : BaseWriter
+    {
+        private T _writer;
+
+        protected virtual void Awake()
+        {
+            _writer = (T)Activator.CreateInstance(typeof(T), new object[] { this });
+        }
+
+        public override BaseWriter Writer
+        {
+            get
+            {
+                return _writer;
+            }
+        }
+    }
 }
