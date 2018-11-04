@@ -1,5 +1,7 @@
 # Overview
 
+![alt text](https://raw.githubusercontent.com/Moolt/UnityIngameConsole/master/Documentation/screenshot.gif "screenshot")
+
 This handy Unity plug-in helps you to implement your own developer console for your game. It's very easy to set up and enables you to call already existing code from the console with little to none effort.
 
 The plug-in also comes with a ui prefab that works out of the box but can be easily extended to your hearts content. There's also a networking prefab to call commands via a TCP client.
@@ -51,10 +53,6 @@ public class GameControllerCommands : MonoBehaviour
     // [...]
 }
 ```
-
-The image below shows how the above commands can be executed in the console.
-
-![alt text](https://raw.githubusercontent.com/Moolt/UnityIngameConsole/master/Documentation/screenshot.gif "screenshot")
 
 ## Documenting parameters
 
