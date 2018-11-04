@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using IngameConsole;
+using System.Linq;
+using UnityEngine.SceneManagement;
 
 [ExecutableFromConsole]
 public class GameControllerCommands : MonoBehaviour
@@ -64,10 +66,32 @@ public class GameControllerCommands : MonoBehaviour
         Destroy(gameObject);
     }
 
-    [ConsoleMethod("print")]
+    [ConsoleMethod("print", "Will print a message to the output.")]
     public void Print(string text)
     {
         _writer.WriteInfo(text);
+    }
+
+    [ConsoleMethod("scene_objects", "Lists all objects in the scene.")]
+    public void PrintSceneObjects()
+    {
+        var scene = SceneManager.GetActiveScene();
+        var objects = scene.GetRootGameObjects();
+
+        objects.ToList().ForEach(o => _writer.WriteLine(o.name));
+    }
+
+    [ConsoleMethod("scene_name", "Outputs the active scenes name.")]
+    public void PrintSceneName()
+    {
+        var scene = SceneManager.GetActiveScene();
+        _writer.WriteLine(scene.name);
+    }
+
+    [ConsoleMethod("scale", "Scales the target object by the given factor.")]
+    public void ScaleObjectBy(GameObject gameObject, [ConsoleParameter("Factor. 1 is default")] float factor)
+    {
+        gameObject.transform.localScale = Vector3.one * factor;
     }
 
     private bool CheckForCube()
