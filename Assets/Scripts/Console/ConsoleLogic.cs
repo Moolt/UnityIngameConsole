@@ -165,7 +165,7 @@ namespace IngameConsole
             {
                 throw new Exception("Empty input.");
             }
-
+            
             string command = parameters[0];
 
             MethodInfo targetMethod;
@@ -190,16 +190,10 @@ namespace IngameConsole
                             var parameterValue = parameters[i + 1];
                             object converted = null;
 
-                            //Try to find a GameObject with the given string name if the parameter is of type GameObject
-                            if (parameterType == typeof(GameObject))
+                            //Custom conversion
+                            if (TypeParser.HasConversionFor(parameterType))
                             {
-                                converted = GameObject.Find(parameterValue.ToString());
-
-                                if (converted == null)
-                                {
-                                    _consoleWriter.WriteError(string.Format("GameObject with name <b>{0}</b> not found.", parameterValue.ToString()));
-                                    return;
-                                }
+                                converted = TypeParser.Convert(parameterType, parameterValue.Split(','));
                             }
                             //Try to convert the string to the target type
                             else
