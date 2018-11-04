@@ -54,9 +54,7 @@ public class GameControllerCommands : MonoBehaviour
     {
         if (CheckForCube())
         {
-            var cubeRenderer = cube.GetComponent<MeshRenderer>();
-            var mat = cubeRenderer.material;
-            mat.SetColor("_Color", new Color(Random.value, Random.value, Random.value));
+            SetObjectColor(cube, new Color(Random.value, Random.value, Random.value));            
         }
     }
 
@@ -92,6 +90,20 @@ public class GameControllerCommands : MonoBehaviour
     public void ScaleObjectBy(GameObject gameObject, [ConsoleParameter("Factor. 1 is default")] float factor)
     {
         gameObject.transform.localScale = Vector3.one * factor;
+    }
+
+    [ConsoleMethod("cube_move", "Translates the position of the cube by the given vector3.")]
+    public void MoveCubeBy(Vector3 movement)
+    {
+        cube.transform.Translate(movement);
+    }
+
+    [ConsoleMethod("set_color", "Sets the color of the given object.")]
+    public void SetObjectColor(GameObject gameObject, Color color)
+    {
+        var objectRenderer = gameObject.GetComponent<MeshRenderer>();
+        var mat = objectRenderer.material;
+        mat.SetColor("_Color", color);
     }
 
     private bool CheckForCube()
