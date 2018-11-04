@@ -159,7 +159,7 @@ In order to write your own conversions, you have to create a new class inheritin
 Every conversion method has to be tagged with the `[ConversionMethod]` attribute. The methods names are irrelevant, only the parameters are imported. When the user enters two parameters, like `1,2`, the BaseConverter will search for any method with two parameters and tries to convert the types accordingly. If no errors occur up to this point, the conversion method will be invoked.
 This all happens automatically, so you don't have to register your new class anywhere and there is really no other logic to implement than the actual conversion. A complete implementation could look like the following example:
 
-``csharp
+```csharp
 public class Vector2Converter : BaseConverter<Vector2>
 {
     [ConversionMethod]
@@ -174,7 +174,10 @@ public class Vector2Converter : BaseConverter<Vector2>
         return Vector2.one * x;
     }
 }
-``
+```
+Try to avoid ambiguities. 
+1. There should always be only one conversion class per type.
+2. Conversion methods are identified by their parameter count. Don't implement several methods with the same amount of parameters, even if the types are different.
 
 ## Input history
 
