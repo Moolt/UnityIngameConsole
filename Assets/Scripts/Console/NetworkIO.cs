@@ -21,6 +21,9 @@ namespace IngameConsole
         private Queue<string> _queuedCommands = new Queue<string>();
         private string welcomeMessage;
         private BaseWriter _writer;
+        private TcpClient _client;
+        private TcpListener _listener;
+        private bool _applicationExited = false;
 
         private void Awake()
         {
@@ -80,7 +83,7 @@ namespace IngameConsole
                 //Don't write empty line or the command
                 if (s == string.Empty || s.StartsWith("> ")) continue;
 
-                Log("-> " + s);
+                ConditionalLog("-> " + s);
                 writer.WriteLine(s);
                 writer.Flush();
             }
@@ -115,16 +118,17 @@ namespace IngameConsole
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                ConditionalLog(e.Message);
             }
             finally
             {
                 if (listener != null)
                 {
                     listener.Stop();
-                    Log("Server stopped.");
+                    ConditionalLog("Server stopped.");
                 }
             }
+            ConditionalLog("Thread closed.");
         }
 
         private void HandleClients(out TcpListener listener)
@@ -133,38 +137,65 @@ namespace IngameConsole
             listener = new TcpListener(localAddress, port);
 
             listener.Start();
-            Log("Server started.");
+            ConditionalLog("Server started.");
 
             AppendToOutput(welcomeMessage);
 
-            while (true)
+            while (!_applicationExited)
             {
-                Log("Listening for incoming connections...");
-                var client = listener.AcceptTcpClient();
-
-                Log("Client connection established.");
-                var writer = new StreamWriter(client.GetStream());
-                var reader = new StreamReader(client.GetStream());
-                //Write existing output to client
-                WriteOutputToClient(writer);
-
-                var clientMessage = string.Empty;
-
-                while (IsClientConnected(reader) && (clientMessage = reader.ReadLine()) != null && clientMessage != "exit")
+                ConditionalLog("Listening for incoming connections...");
+                using (_client = listener.AcceptTcpClient())
                 {
-                    Log("<-" + clientMessage);
+                    ConditionalLog("Client connection established.");
+                    using (var writer = new StreamWriter(_client.GetStream()))
+                    using (var reader = new StreamReader(_client.GetStream()))
+                    {
+                        //Write existing output to client
+                        WriteOutputToClient(writer);
 
-                    EnqueueCommand(clientMessage);
-                    WaitForExecution();
+                        var clientMessage = string.Empty;
 
-                    WriteOutputToClient(writer);
+                        while (IsClientConnected(reader) && (clientMessage = reader.ReadLine()) != null && clientMessage != "exit")
+                        {
+                            ConditionalLog("<-" + clientMessage);
+
+                            EnqueueCommand(clientMessage);
+                            WaitForExecution();
+
+                            WriteOutputToClient(writer);
+                        }
+
+                        ConditionalLog("Client connection has been lost.");
+                    }
                 }
-
-                Log("Client connection has been lost.");
-                writer.Close();
-                reader.Close();
-                client.Close();
             }
+        }
+
+        void OnApplicationQuit()
+        {
+            _applicationExited = true;
+
+            ConditionalLog("Application quits...");
+
+            try
+            {
+                lock (_client)
+                {
+                    _client.Close();
+                }
+                ConditionalLog("Force closed client.");
+            }
+            catch { }
+
+            try
+            {
+                lock(_listener)
+                {
+                    _listener.Stop();
+                }
+                ConditionalLog("Forced server to close.");
+            }
+            catch { }
         }
 
         private void EnqueueCommand(string command)
@@ -180,7 +211,7 @@ namespace IngameConsole
             while (HasQueuedCommands) { Thread.Sleep(50); }
         }
 
-        private void Log(string text)
+        private void ConditionalLog(string text)
         {
             if (logDebugInfo)
             {
