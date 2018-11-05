@@ -127,15 +127,15 @@ For `Vector3` or `Vector2` types, just pass the different axis values separated 
 ### Vector3
 |Input|Result|
 |-|-|
-| `some_command 1,2,3` | `new Vector3(1f, 2f, 3f)`|
-| `some_command 1,2` | `new Vector3(1f, 2, 0f)`|
-| `some_command 1` | `new Vector3(1f, 1f, 1f)` |
+| some_command 1,2,3 | new Vector3(1f, 2f, 3f)|
+| some_command 1,2 | new Vector3(1f, 2, 0f)|
+| some_command 1 | new Vector3(1f, 1f, 1f)|
 
 ### Vector 2
 |Input|Result|
 |-|-|
-| `some_command 1,2` | `new Vector2(1f, 2f)`|
-| `some_command 1` | `new Vector2(1f, 1f)`|
+| some_command 1,2 | new Vector2(1f, 2f)|
+| some_command 1 | new Vector2(1f, 1f)|
 
 ## Colors
 
@@ -143,10 +143,10 @@ Colors can also be passed as parameters. Currently `r, g, b, a`, `r, g, b`, `Hex
 
 |Input|Result|
 |-|-|
-| `some_command 255,0,0,255` | `new Color(1f, 0f, 0f, 1f)`|
-| `some_command 255,0,0` | `new Color(1f, 0f, 0f)`|
-| `some_command #00FF00` | `new Color(0f, 1f, 0f)`|
-| `some_command blue` | `new Color(0f, 0f, 1f)`|
+| some_command 255,0,0,255 | new Color(1f, 0f, 0f, 1f)|
+| some_command 255,0,0 | new Color(1f, 0f, 0f)|
+| some_command #00FF00 | new Color(0f, 1f, 0f)|
+| some_command blue | new Color(0f, 0f, 1f)|
 
 See the [unity documentation](https://docs.unity3d.com/ScriptReference/Color.html) for a comprehensive list of the supported colors. The input is case insensitive, so `bLuE` is a valid color.
 
