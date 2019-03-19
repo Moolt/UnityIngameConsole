@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityInput = UnityEngine.Input;
 
@@ -18,7 +19,9 @@ namespace IngameConsole
 
         private ConsoleHistory _history;
         private Animator _animator;
-        private bool _show = false;
+        private bool _isVisible = false;
+
+        public event EventHandler<VisibilityChangedArgs> VisibilityChanged;
 
         protected override void Awake()
         {
@@ -56,18 +59,25 @@ namespace IngameConsole
 
         public override bool IsVisible
         {
-            get { return _show; }
+            get { return _isVisible; }
             set
             {
-                _show = value;
-                ApplyConsoleState();
+                if (_isVisible != value)
+                {
+                    _isVisible = value;
+                    ApplyConsoleState();
+
+                    if (VisibilityChanged != null)
+                    {
+                        VisibilityChanged.Invoke(this, new VisibilityChangedArgs(_isVisible));
+                    }
+                }
             }
         }
 
         public override void ToggleVisibility()
         {
-            _show = !_show;
-            ApplyConsoleState();
+            IsVisible = !IsVisible;
         }
 
         public override void ClearInput()
@@ -98,9 +108,9 @@ namespace IngameConsole
 
         private void ApplyConsoleState()
         {
-            _animator.SetBool("Show", _show);
+            _animator.SetBool("Show", _isVisible);
 
-            if (_show)
+            if (_isVisible)
             {
                 ClearInput();
                 SelectInput();
