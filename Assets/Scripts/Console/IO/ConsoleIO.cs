@@ -17,6 +17,14 @@ namespace IngameConsole
         [SerializeField]
         private int _inputHistoryCapacity = 10;
 
+        [Header("Colors")]
+        [SerializeField]
+        private Color _errorColor;
+        [SerializeField]
+        private Color _infoColor;
+        [SerializeField]
+        private Color _warningColor;
+
         private ConsoleHistory _history;
         private Animator _animator;
         private bool _isVisible = false;
@@ -30,7 +38,7 @@ namespace IngameConsole
             _animator = GetComponent<Animator>();
         }
 
-        void Update()
+        private void Update()
         {
             //Open or close console
             if (UnityInput.GetKeyDown(_consoleToggleKey))
@@ -104,6 +112,12 @@ namespace IngameConsole
         public KeyCode ToggleKey
         {
             get { return _consoleToggleKey; }
+        }
+
+        protected override ConsoleWriter CreateWriter()
+        {
+            var colors = new OutputColors(_errorColor, _infoColor, _warningColor);
+            return new ConsoleWriter(this, colors);
         }
 
         private void ApplyConsoleState()

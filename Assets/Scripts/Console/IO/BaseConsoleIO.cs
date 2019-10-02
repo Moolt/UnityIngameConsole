@@ -71,7 +71,12 @@ namespace IngameConsole
 
         protected virtual void Awake()
         {
-            _writer = (T)Activator.CreateInstance(typeof(T), new object[] { this });
+            _writer = CreateWriter();
+        }
+
+        protected virtual T CreateWriter()
+        {
+            return (T)Activator.CreateInstance(typeof(T), new object[] { this });
         }
 
         public override BaseWriter Writer

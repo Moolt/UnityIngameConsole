@@ -4,11 +4,19 @@ namespace IngameConsole
 {
     public class ConsoleWriter : BaseWriter
     {
-        private Color _errorColor = Color.red;
-        private Color _infoColor = new Color32(30, 98, 206, 255);
-        private Color _warningColor = new Color32(170, 135, 30, 255);
+        private Color _errorColor;
+        private Color _infoColor;
+        private Color _warningColor;
 
-        public ConsoleWriter(BaseConsoleIO consoleIO) : base(consoleIO) { }
+        public ConsoleWriter(BaseConsoleIO consoleIO) : this(consoleIO, OutputColors.Default) { }
+
+        public ConsoleWriter(BaseConsoleIO consoleIO, OutputColors colors)
+            : base(consoleIO)
+        {
+            _errorColor = colors.Error;
+            _infoColor = colors.Info;
+            _warningColor = colors.Warning;
+        }
 
         public override void WriteLine(string text)
         {
